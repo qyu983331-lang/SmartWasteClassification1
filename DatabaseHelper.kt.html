@@ -1,0 +1,177 @@
+<html>
+<head>
+<title>DatabaseHelper.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+.s5 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DatabaseHelper.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">smartwasteclassification</span>
+
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">content</span><span class="s2">.</span><span class="s1">ContentValues</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">content</span><span class="s2">.</span><span class="s1">Context</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">database</span><span class="s2">.</span><span class="s1">sqlite</span><span class="s2">.</span><span class="s1">SQLiteDatabase</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">database</span><span class="s2">.</span><span class="s1">sqlite</span><span class="s2">.</span><span class="s1">SQLiteOpenHelper</span>
+
+<span class="s0">class </span><span class="s1">DatabaseHelper</span><span class="s2">(</span><span class="s1">context: Context</span><span class="s2">) </span><span class="s1">: SQLiteOpenHelper</span><span class="s2">(</span><span class="s1">context</span><span class="s2">, </span><span class="s1">DATABASE_NAME</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s1">DATABASE_VERSION</span><span class="s2">) {</span>
+
+    <span class="s1">companion </span><span class="s0">object </span><span class="s2">{</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">DATABASE_NAME </span><span class="s2">= </span><span class="s3">&quot;SmartWaste.db&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">DATABASE_VERSION </span><span class="s2">= </span><span class="s4">3 </span><span class="s5">// Bumped version for history table</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">TABLE_USERS </span><span class="s2">= </span><span class="s3">&quot;users&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_ID </span><span class="s2">= </span><span class="s3">&quot;id&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_USERNAME </span><span class="s2">= </span><span class="s3">&quot;username&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_PASSWORD </span><span class="s2">= </span><span class="s3">&quot;password&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_NICKNAME </span><span class="s2">= </span><span class="s3">&quot;nickname&quot;</span>
+
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">TABLE_HISTORY </span><span class="s2">= </span><span class="s3">&quot;history&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_HIST_ID </span><span class="s2">= </span><span class="s3">&quot;hist_id&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_HIST_TYPE </span><span class="s2">= </span><span class="s3">&quot;type&quot; </span><span class="s5">// 0: Photo Identify, 1: Search</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_HIST_CONTENT </span><span class="s2">= </span><span class="s3">&quot;content&quot;</span>
+        <span class="s1">private const </span><span class="s0">val </span><span class="s1">COLUMN_HIST_TIME </span><span class="s2">= </span><span class="s3">&quot;timestamp&quot;</span>
+    <span class="s2">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onCreate</span><span class="s2">(</span><span class="s1">db: SQLiteDatabase?</span><span class="s2">) {</span>
+        <span class="s0">val </span><span class="s1">createUsersTable </span><span class="s2">= (</span><span class="s3">&quot;CREATE TABLE &quot; </span><span class="s2">+ </span><span class="s1">TABLE_USERS </span><span class="s2">+ </span><span class="s3">&quot;(&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_ID </span><span class="s2">+ </span><span class="s3">&quot; INTEGER PRIMARY KEY AUTOINCREMENT,&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_USERNAME </span><span class="s2">+ </span><span class="s3">&quot; TEXT UNIQUE,&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_PASSWORD </span><span class="s2">+ </span><span class="s3">&quot; TEXT,&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_NICKNAME </span><span class="s2">+ </span><span class="s3">&quot; TEXT&quot; </span><span class="s2">+ </span><span class="s3">&quot;)&quot;</span><span class="s2">)</span>
+        <span class="s1">db?</span><span class="s2">.</span><span class="s1">execSQL</span><span class="s2">(</span><span class="s1">createUsersTable</span><span class="s2">)</span>
+
+        <span class="s0">val </span><span class="s1">createHistoryTable </span><span class="s2">= (</span><span class="s3">&quot;CREATE TABLE &quot; </span><span class="s2">+ </span><span class="s1">TABLE_HISTORY </span><span class="s2">+ </span><span class="s3">&quot;(&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_HIST_ID </span><span class="s2">+ </span><span class="s3">&quot; INTEGER PRIMARY KEY AUTOINCREMENT,&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_HIST_TYPE </span><span class="s2">+ </span><span class="s3">&quot; INTEGER,&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_HIST_CONTENT </span><span class="s2">+ </span><span class="s3">&quot; TEXT,&quot;</span>
+                <span class="s2">+ </span><span class="s1">COLUMN_HIST_TIME </span><span class="s2">+ </span><span class="s3">&quot; TEXT&quot; </span><span class="s2">+ </span><span class="s3">&quot;)&quot;</span><span class="s2">)</span>
+        <span class="s1">db?</span><span class="s2">.</span><span class="s1">execSQL</span><span class="s2">(</span><span class="s1">createHistoryTable</span><span class="s2">)</span>
+    <span class="s2">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onUpgrade</span><span class="s2">(</span><span class="s1">db: SQLiteDatabase?</span><span class="s2">, </span><span class="s1">oldVersion: Int</span><span class="s2">, </span><span class="s1">newVersion: Int</span><span class="s2">) {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">oldVersion </span><span class="s2">&lt; </span><span class="s4">2</span><span class="s2">) {</span>
+            <span class="s1">db?</span><span class="s2">.</span><span class="s1">execSQL</span><span class="s2">(</span><span class="s3">&quot;ALTER TABLE </span><span class="s0">$</span><span class="s1">TABLE_USERS </span><span class="s3">ADD COLUMN </span><span class="s0">$</span><span class="s1">COLUMN_NICKNAME </span><span class="s3">TEXT&quot;</span><span class="s2">)</span>
+        <span class="s2">}</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">oldVersion </span><span class="s2">&lt; </span><span class="s4">3</span><span class="s2">) {</span>
+            <span class="s0">val </span><span class="s1">createHistoryTable </span><span class="s2">= (</span><span class="s3">&quot;CREATE TABLE &quot; </span><span class="s2">+ </span><span class="s1">TABLE_HISTORY </span><span class="s2">+ </span><span class="s3">&quot;(&quot;</span>
+                    <span class="s2">+ </span><span class="s1">COLUMN_HIST_ID </span><span class="s2">+ </span><span class="s3">&quot; INTEGER PRIMARY KEY AUTOINCREMENT,&quot;</span>
+                    <span class="s2">+ </span><span class="s1">COLUMN_HIST_TYPE </span><span class="s2">+ </span><span class="s3">&quot; INTEGER,&quot;</span>
+                    <span class="s2">+ </span><span class="s1">COLUMN_HIST_CONTENT </span><span class="s2">+ </span><span class="s3">&quot; TEXT,&quot;</span>
+                    <span class="s2">+ </span><span class="s1">COLUMN_HIST_TIME </span><span class="s2">+ </span><span class="s3">&quot; TEXT&quot; </span><span class="s2">+ </span><span class="s3">&quot;)&quot;</span><span class="s2">)</span>
+            <span class="s1">db?</span><span class="s2">.</span><span class="s1">execSQL</span><span class="s2">(</span><span class="s1">createHistoryTable</span><span class="s2">)</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">fun </span><span class="s1">addUser</span><span class="s2">(</span><span class="s1">user: User</span><span class="s2">)</span><span class="s1">: Long </span><span class="s2">{</span>
+        <span class="s0">val </span><span class="s1">db </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">writableDatabase</span>
+        <span class="s0">val </span><span class="s1">values </span><span class="s2">= </span><span class="s1">ContentValues</span><span class="s2">()</span>
+        <span class="s1">values</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">COLUMN_USERNAME</span><span class="s2">, </span><span class="s1">user</span><span class="s2">.</span><span class="s1">username</span><span class="s2">)</span>
+        <span class="s1">values</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">COLUMN_PASSWORD</span><span class="s2">, </span><span class="s1">user</span><span class="s2">.</span><span class="s1">password</span><span class="s2">)</span>
+        <span class="s1">values</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">COLUMN_NICKNAME</span><span class="s2">, </span><span class="s1">user</span><span class="s2">.</span><span class="s1">nickname</span><span class="s2">)</span>
+        <span class="s0">val </span><span class="s1">id </span><span class="s2">= </span><span class="s1">db</span><span class="s2">.</span><span class="s1">insert</span><span class="s2">(</span><span class="s1">TABLE_USERS</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s1">values</span><span class="s2">)</span>
+        <span class="s1">db</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s0">return </span><span class="s1">id</span>
+    <span class="s2">}</span>
+
+    <span class="s0">fun </span><span class="s1">getUser</span><span class="s2">(</span><span class="s1">username: String</span><span class="s2">, </span><span class="s1">password: String</span><span class="s2">)</span><span class="s1">: User? </span><span class="s2">{</span>
+        <span class="s0">val </span><span class="s1">db </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">readableDatabase</span>
+        <span class="s0">val </span><span class="s1">cursor </span><span class="s2">= </span><span class="s1">db</span><span class="s2">.</span><span class="s1">query</span><span class="s2">(</span>
+            <span class="s1">TABLE_USERS</span><span class="s2">,</span>
+            <span class="s1">arrayOf</span><span class="s2">(</span><span class="s1">COLUMN_ID</span><span class="s2">, </span><span class="s1">COLUMN_USERNAME</span><span class="s2">, </span><span class="s1">COLUMN_PASSWORD</span><span class="s2">, </span><span class="s1">COLUMN_NICKNAME</span><span class="s2">),</span>
+            <span class="s3">&quot;</span><span class="s0">$</span><span class="s1">COLUMN_USERNAME</span><span class="s3">=? AND </span><span class="s0">$</span><span class="s1">COLUMN_PASSWORD</span><span class="s3">=?&quot;</span><span class="s2">,</span>
+            <span class="s1">arrayOf</span><span class="s2">(</span><span class="s1">username</span><span class="s2">, </span><span class="s1">password</span><span class="s2">),</span>
+            <span class="s0">null</span><span class="s2">,</span>
+            <span class="s0">null</span><span class="s2">,</span>
+            <span class="s0">null</span>
+        <span class="s2">)</span>
+
+        <span class="s0">var </span><span class="s1">user: User? </span><span class="s2">= </span><span class="s0">null</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">cursor </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">moveToFirst</span><span class="s2">()) {</span>
+            <span class="s1">user </span><span class="s2">= </span><span class="s1">User</span><span class="s2">(</span>
+                <span class="s1">cursor</span><span class="s2">.</span><span class="s1">getLong</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_ID</span><span class="s2">)),</span>
+                <span class="s1">cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_USERNAME</span><span class="s2">)),</span>
+                <span class="s1">cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_PASSWORD</span><span class="s2">)),</span>
+                <span class="s1">cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_NICKNAME</span><span class="s2">)) </span><span class="s1">?: </span><span class="s3">&quot;&quot;</span>
+            <span class="s2">)</span>
+            <span class="s1">cursor</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s2">}</span>
+        <span class="s1">db</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s0">return </span><span class="s1">user</span>
+    <span class="s2">}</span>
+
+    <span class="s0">fun </span><span class="s1">updateNickname</span><span class="s2">(</span><span class="s1">username: String</span><span class="s2">, </span><span class="s1">newNickname: String</span><span class="s2">)</span><span class="s1">: Int </span><span class="s2">{</span>
+        <span class="s0">val </span><span class="s1">db </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">writableDatabase</span>
+        <span class="s0">val </span><span class="s1">values </span><span class="s2">= </span><span class="s1">ContentValues</span><span class="s2">()</span>
+        <span class="s1">values</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">COLUMN_NICKNAME</span><span class="s2">, </span><span class="s1">newNickname</span><span class="s2">)</span>
+        <span class="s0">val </span><span class="s1">rows </span><span class="s2">= </span><span class="s1">db</span><span class="s2">.</span><span class="s1">update</span><span class="s2">(</span><span class="s1">TABLE_USERS</span><span class="s2">, </span><span class="s1">values</span><span class="s2">, </span><span class="s3">&quot;</span><span class="s0">$</span><span class="s1">COLUMN_USERNAME</span><span class="s3">=?&quot;</span><span class="s2">, </span><span class="s1">arrayOf</span><span class="s2">(</span><span class="s1">username</span><span class="s2">))</span>
+        <span class="s1">db</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s0">return </span><span class="s1">rows</span>
+    <span class="s2">}</span>
+
+    <span class="s0">fun </span><span class="s1">addHistory</span><span class="s2">(</span><span class="s1">type: Int</span><span class="s2">, </span><span class="s1">content: String</span><span class="s2">, </span><span class="s1">timestamp: String</span><span class="s2">) {</span>
+        <span class="s0">val </span><span class="s1">db </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">writableDatabase</span>
+        <span class="s0">val </span><span class="s1">values </span><span class="s2">= </span><span class="s1">ContentValues</span><span class="s2">()</span>
+        <span class="s1">values</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">COLUMN_HIST_TYPE</span><span class="s2">, </span><span class="s1">type</span><span class="s2">)</span>
+        <span class="s1">values</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">COLUMN_HIST_CONTENT</span><span class="s2">, </span><span class="s1">content</span><span class="s2">)</span>
+        <span class="s1">values</span><span class="s2">.</span><span class="s1">put</span><span class="s2">(</span><span class="s1">COLUMN_HIST_TIME</span><span class="s2">, </span><span class="s1">timestamp</span><span class="s2">)</span>
+        <span class="s1">db</span><span class="s2">.</span><span class="s1">insert</span><span class="s2">(</span><span class="s1">TABLE_HISTORY</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s1">values</span><span class="s2">)</span>
+        <span class="s1">db</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+    <span class="s2">}</span>
+
+    <span class="s0">fun </span><span class="s1">getHistoryByType</span><span class="s2">(</span><span class="s1">type: Int</span><span class="s2">)</span><span class="s1">: List</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt; {</span>
+        <span class="s0">val </span><span class="s1">list </span><span class="s2">= </span><span class="s1">mutableListOf</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt;()</span>
+        <span class="s0">val </span><span class="s1">db </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">readableDatabase</span>
+        <span class="s0">val </span><span class="s1">cursor </span><span class="s2">= </span><span class="s1">db</span><span class="s2">.</span><span class="s1">query</span><span class="s2">(</span>
+            <span class="s1">TABLE_HISTORY</span><span class="s2">,</span>
+            <span class="s1">arrayOf</span><span class="s2">(</span><span class="s1">COLUMN_HIST_CONTENT</span><span class="s2">, </span><span class="s1">COLUMN_HIST_TIME</span><span class="s2">),</span>
+            <span class="s3">&quot;</span><span class="s0">$</span><span class="s1">COLUMN_HIST_TYPE </span><span class="s3">= ?&quot;</span><span class="s2">,</span>
+            <span class="s1">arrayOf</span><span class="s2">(</span><span class="s1">type</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">()),</span>
+            <span class="s0">null</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s3">&quot;</span><span class="s0">$</span><span class="s1">COLUMN_HIST_ID </span><span class="s3">DESC&quot;</span>
+        <span class="s2">)</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">cursor </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">moveToFirst</span><span class="s2">()) {</span>
+            <span class="s0">do </span><span class="s2">{</span>
+                <span class="s0">val </span><span class="s1">content </span><span class="s2">= </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_HIST_CONTENT</span><span class="s2">))</span>
+                <span class="s0">val </span><span class="s1">time </span><span class="s2">= </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_HIST_TIME</span><span class="s2">))</span>
+                <span class="s1">list</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s3">&quot;[</span><span class="s0">$</span><span class="s1">time</span><span class="s3">] </span><span class="s0">$</span><span class="s1">content</span><span class="s3">&quot;</span><span class="s2">)</span>
+            <span class="s2">} </span><span class="s0">while </span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">moveToNext</span><span class="s2">())</span>
+            <span class="s1">cursor</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s2">}</span>
+        <span class="s1">db</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s0">return </span><span class="s1">list</span>
+    <span class="s2">}</span>
+
+    <span class="s0">fun </span><span class="s1">getAllHistory</span><span class="s2">()</span><span class="s1">: List</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt; {</span>
+        <span class="s0">val </span><span class="s1">list </span><span class="s2">= </span><span class="s1">mutableListOf</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt;()</span>
+        <span class="s0">val </span><span class="s1">db </span><span class="s2">= </span><span class="s0">this</span><span class="s2">.</span><span class="s1">readableDatabase</span>
+        <span class="s0">val </span><span class="s1">cursor </span><span class="s2">= </span><span class="s1">db</span><span class="s2">.</span><span class="s1">query</span><span class="s2">(</span>
+            <span class="s1">TABLE_HISTORY</span><span class="s2">,</span>
+            <span class="s1">arrayOf</span><span class="s2">(</span><span class="s1">COLUMN_HIST_TYPE</span><span class="s2">, </span><span class="s1">COLUMN_HIST_CONTENT</span><span class="s2">, </span><span class="s1">COLUMN_HIST_TIME</span><span class="s2">),</span>
+            <span class="s0">null</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s3">&quot;</span><span class="s0">$</span><span class="s1">COLUMN_HIST_ID </span><span class="s3">DESC&quot;</span>
+        <span class="s2">)</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">cursor </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">moveToFirst</span><span class="s2">()) {</span>
+            <span class="s0">do </span><span class="s2">{</span>
+                <span class="s0">val </span><span class="s1">type </span><span class="s2">= </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getInt</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_HIST_TYPE</span><span class="s2">))</span>
+                <span class="s0">val </span><span class="s1">content </span><span class="s2">= </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_HIST_CONTENT</span><span class="s2">))</span>
+                <span class="s0">val </span><span class="s1">time </span><span class="s2">= </span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">COLUMN_HIST_TIME</span><span class="s2">))</span>
+                <span class="s0">val </span><span class="s1">typeStr </span><span class="s2">= </span><span class="s0">if </span><span class="s2">(</span><span class="s1">type </span><span class="s2">== </span><span class="s4">0</span><span class="s2">) </span><span class="s3">&quot;拍照识别&quot; </span><span class="s0">else </span><span class="s3">&quot;分类搜索&quot;</span>
+                <span class="s1">list</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s3">&quot;[</span><span class="s0">$</span><span class="s1">time</span><span class="s3">] </span><span class="s0">$</span><span class="s1">typeStr</span><span class="s3">: </span><span class="s0">$</span><span class="s1">content</span><span class="s3">&quot;</span><span class="s2">)</span>
+            <span class="s2">} </span><span class="s0">while </span><span class="s2">(</span><span class="s1">cursor</span><span class="s2">.</span><span class="s1">moveToNext</span><span class="s2">())</span>
+            <span class="s1">cursor</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s2">}</span>
+        <span class="s1">db</span><span class="s2">.</span><span class="s1">close</span><span class="s2">()</span>
+        <span class="s0">return </span><span class="s1">list</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>
