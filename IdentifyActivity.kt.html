@@ -1,0 +1,194 @@
+<html>
+<head>
+<title>IdentifyActivity.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+.s5 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+IdentifyActivity.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">smartwasteclassification</span>
+
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">Manifest</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">annotation</span><span class="s2">.</span><span class="s1">SuppressLint</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">content</span><span class="s2">.</span><span class="s1">Intent</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">content</span><span class="s2">.</span><span class="s1">pm</span><span class="s2">.</span><span class="s1">PackageManager</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">graphics</span><span class="s2">.</span><span class="s1">BitmapFactory</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">net</span><span class="s2">.</span><span class="s1">Uri</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">os</span><span class="s2">.</span><span class="s1">Bundle</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">os</span><span class="s2">.</span><span class="s1">Environment</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">provider</span><span class="s2">.</span><span class="s1">MediaStore</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Log</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">view</span><span class="s2">.</span><span class="s1">View</span>
+<span class="s1">import android</span><span class="s2">.</span><span class="s1">widget</span><span class="s2">.</span><span class="s1">Toast</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">activity</span><span class="s2">.</span><span class="s1">result</span><span class="s2">.</span><span class="s1">contract</span><span class="s2">.</span><span class="s1">ActivityResultContracts</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">appcompat</span><span class="s2">.</span><span class="s1">app</span><span class="s2">.</span><span class="s1">AppCompatActivity</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">core</span><span class="s2">.</span><span class="s1">content</span><span class="s2">.</span><span class="s1">ContextCompat</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">core</span><span class="s2">.</span><span class="s1">content</span><span class="s2">.</span><span class="s1">FileProvider</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">lifecycle</span><span class="s2">.</span><span class="s1">lifecycleScope</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">smartwasteclassification</span><span class="s2">.</span><span class="s1">databinding</span><span class="s2">.</span><span class="s1">ActivityIdentifyBinding</span>
+<span class="s1">import kotlinx</span><span class="s2">.</span><span class="s1">coroutines</span><span class="s2">.</span><span class="s1">Dispatchers</span>
+<span class="s1">import kotlinx</span><span class="s2">.</span><span class="s1">coroutines</span><span class="s2">.</span><span class="s1">delay</span>
+<span class="s1">import kotlinx</span><span class="s2">.</span><span class="s1">coroutines</span><span class="s2">.</span><span class="s1">launch</span>
+<span class="s1">import kotlinx</span><span class="s2">.</span><span class="s1">coroutines</span><span class="s2">.</span><span class="s1">withContext</span>
+<span class="s1">import java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">File</span>
+<span class="s1">import java</span><span class="s2">.</span><span class="s1">text</span><span class="s2">.</span><span class="s1">SimpleDateFormat</span>
+<span class="s1">import java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.*</span>
+
+<span class="s0">class </span><span class="s1">IdentifyActivity : AppCompatActivity</span><span class="s2">() {</span>
+
+    <span class="s1">private lateinit </span><span class="s0">var </span><span class="s1">binding: ActivityIdentifyBinding</span>
+    <span class="s1">private lateinit </span><span class="s0">var </span><span class="s1">dbHelper: DatabaseHelper</span>
+    <span class="s1">private </span><span class="s0">var </span><span class="s1">currentPhotoPath: String? </span><span class="s2">= </span><span class="s0">null</span>
+
+    <span class="s1">companion </span><span class="s0">object </span><span class="s2">{</span>
+        <span class="s1">const </span><span class="s0">val </span><span class="s1">ACTION_STATS_UPDATED </span><span class="s2">= </span><span class="s3">&quot;com.example.smartwasteclassification.ACTION_STATS_UPDATED&quot;</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">val </span><span class="s1">hotWastePool </span><span class="s2">= </span><span class="s1">listOf</span><span class="s2">(</span>
+        <span class="s3">&quot;一次性口罩&quot; </span><span class="s1">to </span><span class="s3">&quot;其他垃圾&quot;</span><span class="s2">, </span><span class="s3">&quot;快递纸箱&quot; </span><span class="s1">to </span><span class="s3">&quot;可回收物&quot;</span><span class="s2">, </span><span class="s3">&quot;剩菜剩饭&quot; </span><span class="s1">to </span><span class="s3">&quot;厨余垃圾&quot;</span><span class="s2">,</span>
+        <span class="s3">&quot;废旧电池&quot; </span><span class="s1">to </span><span class="s3">&quot;有害垃圾&quot;</span><span class="s2">, </span><span class="s3">&quot;奶茶杯&quot; </span><span class="s1">to </span><span class="s3">&quot;其他垃圾&quot;</span><span class="s2">, </span><span class="s3">&quot;塑料瓶&quot; </span><span class="s1">to </span><span class="s3">&quot;可回收物&quot;</span><span class="s2">,</span>
+        <span class="s3">&quot;过期药品&quot; </span><span class="s1">to </span><span class="s3">&quot;有害垃圾&quot;</span><span class="s2">, </span><span class="s3">&quot;落叶&quot; </span><span class="s1">to </span><span class="s3">&quot;厨余垃圾&quot;</span><span class="s2">, </span><span class="s3">&quot;陶瓷碎片&quot; </span><span class="s1">to </span><span class="s3">&quot;其他垃圾&quot;</span><span class="s2">, </span><span class="s3">&quot;旧衣物&quot; </span><span class="s1">to </span><span class="s3">&quot;可回收物&quot;</span>
+    <span class="s2">)</span>
+
+    <span class="s1">private </span><span class="s0">val </span><span class="s1">requestPermissionLauncher </span><span class="s2">= </span><span class="s1">registerForActivityResult</span><span class="s2">(</span><span class="s1">ActivityResultContracts</span><span class="s2">.</span><span class="s1">RequestMultiplePermissions</span><span class="s2">()) { </span><span class="s1">permissions </span><span class="s2">-&gt;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">permissions</span><span class="s2">[</span><span class="s1">Manifest</span><span class="s2">.</span><span class="s1">permission</span><span class="s2">.</span><span class="s1">CAMERA</span><span class="s2">] != </span><span class="s0">true</span><span class="s2">) {</span>
+            <span class="s1">Toast</span><span class="s2">.</span><span class="s1">makeText</span><span class="s2">(</span><span class="s0">this</span><span class="s2">, </span><span class="s3">&quot;需要相机权限进行拍照&quot;</span><span class="s2">, </span><span class="s1">Toast</span><span class="s2">.</span><span class="s1">LENGTH_SHORT</span><span class="s2">).</span><span class="s1">show</span><span class="s2">()</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">val </span><span class="s1">takePictureLauncher </span><span class="s2">= </span><span class="s1">registerForActivityResult</span><span class="s2">(</span><span class="s1">ActivityResultContracts</span><span class="s2">.</span><span class="s1">StartActivityForResult</span><span class="s2">()) { </span><span class="s1">result </span><span class="s2">-&gt;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">result</span><span class="s2">.</span><span class="s1">resultCode </span><span class="s2">== </span><span class="s1">RESULT_OK</span><span class="s2">) {</span>
+            <span class="s1">currentPhotoPath?</span><span class="s2">.</span><span class="s1">let </span><span class="s2">{ </span><span class="s1">displayAndIdentify</span><span class="s2">(</span><span class="s1">File</span><span class="s2">(</span><span class="s1">it</span><span class="s2">)) }</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">val </span><span class="s1">pickImageLauncher </span><span class="s2">= </span><span class="s1">registerForActivityResult</span><span class="s2">(</span><span class="s1">ActivityResultContracts</span><span class="s2">.</span><span class="s1">StartActivityForResult</span><span class="s2">()) { </span><span class="s1">result </span><span class="s2">-&gt;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">result</span><span class="s2">.</span><span class="s1">resultCode </span><span class="s2">== </span><span class="s1">RESULT_OK</span><span class="s2">) {</span>
+            <span class="s1">result</span><span class="s2">.</span><span class="s1">data?</span><span class="s2">.</span><span class="s1">data?</span><span class="s2">.</span><span class="s1">let </span><span class="s2">{ </span><span class="s1">uri </span><span class="s2">-&gt;</span>
+                <span class="s1">uriToFile</span><span class="s2">(</span><span class="s1">uri</span><span class="s2">)</span><span class="s1">?</span><span class="s2">.</span><span class="s1">let </span><span class="s2">{ </span><span class="s1">displayAndIdentify</span><span class="s2">(</span><span class="s1">it</span><span class="s2">) }</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s1">override </span><span class="s0">fun </span><span class="s1">onCreate</span><span class="s2">(</span><span class="s1">savedInstanceState: Bundle?</span><span class="s2">) {</span>
+        <span class="s0">super</span><span class="s2">.</span><span class="s1">onCreate</span><span class="s2">(</span><span class="s1">savedInstanceState</span><span class="s2">)</span>
+        <span class="s1">binding </span><span class="s2">= </span><span class="s1">ActivityIdentifyBinding</span><span class="s2">.</span><span class="s1">inflate</span><span class="s2">(</span><span class="s1">layoutInflater</span><span class="s2">)</span>
+        <span class="s1">setContentView</span><span class="s2">(</span><span class="s1">binding</span><span class="s2">.</span><span class="s1">root</span><span class="s2">)</span>
+        <span class="s1">dbHelper </span><span class="s2">= </span><span class="s1">DatabaseHelper</span><span class="s2">(</span><span class="s0">this</span><span class="s2">)</span>
+
+        <span class="s1">setupListeners</span><span class="s2">()</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">setupListeners</span><span class="s2">() {</span>
+        <span class="s1">binding</span><span class="s2">.</span><span class="s1">btnBack</span><span class="s2">.</span><span class="s1">setOnClickListener </span><span class="s2">{ </span><span class="s1">finish</span><span class="s2">() }</span>
+
+        <span class="s1">binding</span><span class="s2">.</span><span class="s1">btnCameraIdentify</span><span class="s2">.</span><span class="s1">setOnClickListener </span><span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">checkCameraPermission</span><span class="s2">()) {</span>
+                <span class="s1">dispatchTakePictureIntent</span><span class="s2">()</span>
+            <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                <span class="s1">requestPermissionLauncher</span><span class="s2">.</span><span class="s1">launch</span><span class="s2">(</span><span class="s1">arrayOf</span><span class="s2">(</span><span class="s1">Manifest</span><span class="s2">.</span><span class="s1">permission</span><span class="s2">.</span><span class="s1">CAMERA</span><span class="s2">))</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s1">binding</span><span class="s2">.</span><span class="s1">btnGalleryIdentify</span><span class="s2">.</span><span class="s1">setOnClickListener </span><span class="s2">{</span>
+            <span class="s0">val </span><span class="s1">intent </span><span class="s2">= </span><span class="s1">Intent</span><span class="s2">(</span><span class="s1">Intent</span><span class="s2">.</span><span class="s1">ACTION_PICK</span><span class="s2">, </span><span class="s1">MediaStore</span><span class="s2">.</span><span class="s1">Images</span><span class="s2">.</span><span class="s1">Media</span><span class="s2">.</span><span class="s1">EXTERNAL_CONTENT_URI</span><span class="s2">)</span>
+            <span class="s1">pickImageLauncher</span><span class="s2">.</span><span class="s1">launch</span><span class="s2">(</span><span class="s1">intent</span><span class="s2">)</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">checkCameraPermission</span><span class="s2">()</span><span class="s1">: Boolean </span><span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">ContextCompat</span><span class="s2">.</span><span class="s1">checkSelfPermission</span><span class="s2">(</span><span class="s0">this</span><span class="s2">, </span><span class="s1">Manifest</span><span class="s2">.</span><span class="s1">permission</span><span class="s2">.</span><span class="s1">CAMERA</span><span class="s2">) == </span><span class="s1">PackageManager</span><span class="s2">.</span><span class="s1">PERMISSION_GRANTED</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">dispatchTakePictureIntent</span><span class="s2">() {</span>
+        <span class="s0">try </span><span class="s2">{</span>
+            <span class="s0">val </span><span class="s1">file </span><span class="s2">= </span><span class="s1">File</span><span class="s2">.</span><span class="s1">createTempFile</span><span class="s2">(</span><span class="s3">&quot;IMG_&quot;</span><span class="s2">, </span><span class="s3">&quot;.jpg&quot;</span><span class="s2">, </span><span class="s1">getExternalFilesDir</span><span class="s2">(</span><span class="s1">Environment</span><span class="s2">.</span><span class="s1">DIRECTORY_PICTURES</span><span class="s2">)).</span><span class="s1">apply </span><span class="s2">{</span>
+                <span class="s1">currentPhotoPath </span><span class="s2">= </span><span class="s1">absolutePath</span>
+            <span class="s2">}</span>
+            <span class="s0">val </span><span class="s1">uri </span><span class="s2">= </span><span class="s1">FileProvider</span><span class="s2">.</span><span class="s1">getUriForFile</span><span class="s2">(</span><span class="s0">this</span><span class="s2">, </span><span class="s3">&quot;</span><span class="s0">${</span><span class="s1">packageName</span><span class="s0">}</span><span class="s3">.fileprovider&quot;</span><span class="s2">, </span><span class="s1">file</span><span class="s2">)</span>
+            <span class="s1">takePictureLauncher</span><span class="s2">.</span><span class="s1">launch</span><span class="s2">(</span><span class="s1">Intent</span><span class="s2">(</span><span class="s1">MediaStore</span><span class="s2">.</span><span class="s1">ACTION_IMAGE_CAPTURE</span><span class="s2">).</span><span class="s1">putExtra</span><span class="s2">(</span><span class="s1">MediaStore</span><span class="s2">.</span><span class="s1">EXTRA_OUTPUT</span><span class="s2">, </span><span class="s1">uri</span><span class="s2">))</span>
+        <span class="s2">} </span><span class="s1">catch </span><span class="s2">(</span><span class="s1">e: Exception</span><span class="s2">) {</span>
+            <span class="s1">Log</span><span class="s2">.</span><span class="s1">e</span><span class="s2">(</span><span class="s3">&quot;Camera&quot;</span><span class="s2">, </span><span class="s3">&quot;Intent failed&quot;</span><span class="s2">, </span><span class="s1">e</span><span class="s2">)</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">uriToFile</span><span class="s2">(</span><span class="s1">uri: Uri</span><span class="s2">)</span><span class="s1">: File? </span><span class="s2">{</span>
+        <span class="s0">val </span><span class="s1">file </span><span class="s2">= </span><span class="s1">File</span><span class="s2">.</span><span class="s1">createTempFile</span><span class="s2">(</span><span class="s3">&quot;IMG_&quot;</span><span class="s2">, </span><span class="s3">&quot;.jpg&quot;</span><span class="s2">, </span><span class="s1">getExternalFilesDir</span><span class="s2">(</span><span class="s1">Environment</span><span class="s2">.</span><span class="s1">DIRECTORY_PICTURES</span><span class="s2">))</span>
+        <span class="s0">return try </span><span class="s2">{</span>
+            <span class="s1">contentResolver</span><span class="s2">.</span><span class="s1">openInputStream</span><span class="s2">(</span><span class="s1">uri</span><span class="s2">)</span><span class="s1">?</span><span class="s2">.</span><span class="s1">use </span><span class="s2">{ </span><span class="s1">input </span><span class="s2">-&gt;</span>
+                <span class="s1">file</span><span class="s2">.</span><span class="s1">outputStream</span><span class="s2">().</span><span class="s1">use </span><span class="s2">{ </span><span class="s1">output </span><span class="s2">-&gt;</span>
+                    <span class="s1">input</span><span class="s2">.</span><span class="s1">copyTo</span><span class="s2">(</span><span class="s1">output</span><span class="s2">)</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+            <span class="s1">file</span>
+        <span class="s2">} </span><span class="s1">catch </span><span class="s2">(</span><span class="s1">e: Exception</span><span class="s2">) {</span>
+            <span class="s0">null</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">displayAndIdentify</span><span class="s2">(</span><span class="s1">file: File</span><span class="s2">) {</span>
+        <span class="s1">binding</span><span class="s2">.</span><span class="s1">ivPreview</span><span class="s2">.</span><span class="s1">setImageBitmap</span><span class="s2">(</span><span class="s1">BitmapFactory</span><span class="s2">.</span><span class="s1">decodeFile</span><span class="s2">(</span><span class="s1">file</span><span class="s2">.</span><span class="s1">absolutePath</span><span class="s2">))</span>
+        <span class="s1">binding</span><span class="s2">.</span><span class="s1">tvPlaceholder</span><span class="s2">.</span><span class="s1">visibility </span><span class="s2">= </span><span class="s1">View</span><span class="s2">.</span><span class="s1">GONE</span>
+        <span class="s1">identifyWaste</span><span class="s2">(</span><span class="s1">file</span><span class="s2">)</span>
+    <span class="s2">}</span>
+
+    <span class="s1">@SuppressLint</span><span class="s2">(</span><span class="s3">&quot;SetTextI18n&quot;</span><span class="s2">)</span>
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">identifyWaste</span><span class="s2">(</span><span class="s1">file: File</span><span class="s2">) {</span>
+        <span class="s1">binding</span><span class="s2">.</span><span class="s1">cardResult</span><span class="s2">.</span><span class="s1">visibility </span><span class="s2">= </span><span class="s1">View</span><span class="s2">.</span><span class="s1">INVISIBLE</span>
+        <span class="s1">lifecycleScope</span><span class="s2">.</span><span class="s1">launch</span><span class="s2">(</span><span class="s1">Dispatchers</span><span class="s2">.</span><span class="s1">IO</span><span class="s2">) {</span>
+            <span class="s1">delay</span><span class="s2">(</span><span class="s4">1500</span><span class="s2">) </span><span class="s5">// 模拟处理延迟</span>
+            <span class="s0">val </span><span class="s1">res </span><span class="s2">= </span><span class="s1">hotWastePool</span><span class="s2">.</span><span class="s1">random</span><span class="s2">()</span>
+            <span class="s1">withContext</span><span class="s2">(</span><span class="s1">Dispatchers</span><span class="s2">.</span><span class="s1">Main</span><span class="s2">) {</span>
+                <span class="s0">val </span><span class="s1">resultContent </span><span class="s2">= </span><span class="s3">&quot;</span><span class="s0">${</span><span class="s1">res</span><span class="s2">.</span><span class="s1">first</span><span class="s0">} </span><span class="s3">-&gt; </span><span class="s0">${</span><span class="s1">res</span><span class="s2">.</span><span class="s1">second</span><span class="s0">}</span><span class="s3">&quot;</span>
+                <span class="s1">binding</span><span class="s2">.</span><span class="s1">tvIdentifyResult</span><span class="s2">.</span><span class="s1">text </span><span class="s2">= </span><span class="s1">resultContent</span>
+                <span class="s1">binding</span><span class="s2">.</span><span class="s1">cardResult</span><span class="s2">.</span><span class="s1">visibility </span><span class="s2">= </span><span class="s1">View</span><span class="s2">.</span><span class="s1">VISIBLE</span>
+
+                <span class="s5">// 保存拍照识别历史 (type = 0)</span>
+                <span class="s0">val </span><span class="s1">time </span><span class="s2">= </span><span class="s1">SimpleDateFormat</span><span class="s2">(</span><span class="s3">&quot;yyyy-MM-dd HH:mm&quot;</span><span class="s2">, </span><span class="s1">Locale</span><span class="s2">.</span><span class="s1">getDefault</span><span class="s2">()).</span><span class="s1">format</span><span class="s2">(</span><span class="s1">Date</span><span class="s2">())</span>
+                <span class="s1">dbHelper</span><span class="s2">.</span><span class="s1">addHistory</span><span class="s2">(</span><span class="s4">0</span><span class="s2">, </span><span class="s1">resultContent</span><span class="s2">, </span><span class="s1">time</span><span class="s2">)</span>
+
+                <span class="s5">// 同步增加积分和分类次数</span>
+                <span class="s1">updateStats</span><span class="s2">(</span><span class="s1">res</span><span class="s2">.</span><span class="s1">second</span><span class="s2">)</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s1">private </span><span class="s0">fun </span><span class="s1">updateStats</span><span class="s2">(</span><span class="s1">category: String</span><span class="s2">) {</span>
+        <span class="s0">val </span><span class="s1">prefs </span><span class="s2">= </span><span class="s1">getSharedPreferences</span><span class="s2">(</span><span class="s3">&quot;waste_stats&quot;</span><span class="s2">, </span><span class="s1">MODE_PRIVATE</span><span class="s2">)</span>
+        <span class="s0">val </span><span class="s1">count </span><span class="s2">= </span><span class="s1">prefs</span><span class="s2">.</span><span class="s1">getInt</span><span class="s2">(</span><span class="s3">&quot;total_count&quot;</span><span class="s2">, </span><span class="s4">0</span><span class="s2">)</span>
+        <span class="s0">val </span><span class="s1">points </span><span class="s2">= </span><span class="s1">prefs</span><span class="s2">.</span><span class="s1">getInt</span><span class="s2">(</span><span class="s3">&quot;points&quot;</span><span class="s2">, </span><span class="s4">0</span><span class="s2">)</span>
+        
+        <span class="s5">// 确定对应的分类 Key</span>
+        <span class="s0">val </span><span class="s1">categoryKey </span><span class="s2">= </span><span class="s0">when </span><span class="s2">{</span>
+            <span class="s1">category</span><span class="s2">.</span><span class="s1">contains</span><span class="s2">(</span><span class="s3">&quot;可回收&quot;</span><span class="s2">) -&gt; </span><span class="s3">&quot;recyclable_count&quot;</span>
+            <span class="s1">category</span><span class="s2">.</span><span class="s1">contains</span><span class="s2">(</span><span class="s3">&quot;有害&quot;</span><span class="s2">) -&gt; </span><span class="s3">&quot;hazardous_count&quot;</span>
+            <span class="s1">category</span><span class="s2">.</span><span class="s1">contains</span><span class="s2">(</span><span class="s3">&quot;厨余&quot;</span><span class="s2">) || </span><span class="s1">category</span><span class="s2">.</span><span class="s1">contains</span><span class="s2">(</span><span class="s3">&quot;湿&quot;</span><span class="s2">) -&gt; </span><span class="s3">&quot;kitchen_count&quot;</span>
+            <span class="s0">else </span><span class="s2">-&gt; </span><span class="s3">&quot;other_count&quot;</span>
+        <span class="s2">}</span>
+        <span class="s0">val </span><span class="s1">categoryCount </span><span class="s2">= </span><span class="s1">prefs</span><span class="s2">.</span><span class="s1">getInt</span><span class="s2">(</span><span class="s1">categoryKey</span><span class="s2">, </span><span class="s4">0</span><span class="s2">)</span>
+
+        <span class="s1">prefs</span><span class="s2">.</span><span class="s1">edit</span><span class="s2">()</span>
+            <span class="s2">.</span><span class="s1">putInt</span><span class="s2">(</span><span class="s3">&quot;total_count&quot;</span><span class="s2">, </span><span class="s1">count </span><span class="s2">+ </span><span class="s4">1</span><span class="s2">)</span>
+            <span class="s2">.</span><span class="s1">putInt</span><span class="s2">(</span><span class="s3">&quot;points&quot;</span><span class="s2">, </span><span class="s1">points </span><span class="s2">+ </span><span class="s4">5</span><span class="s2">)</span>
+            <span class="s2">.</span><span class="s1">putInt</span><span class="s2">(</span><span class="s1">categoryKey</span><span class="s2">, </span><span class="s1">categoryCount </span><span class="s2">+ </span><span class="s4">1</span><span class="s2">)</span>
+            <span class="s2">.</span><span class="s1">apply</span><span class="s2">()</span>
+
+        <span class="s5">// 发送广播通知更新</span>
+        <span class="s0">val </span><span class="s1">intent </span><span class="s2">= </span><span class="s1">Intent</span><span class="s2">(</span><span class="s1">ACTION_STATS_UPDATED</span><span class="s2">)</span>
+        <span class="s1">sendBroadcast</span><span class="s2">(</span><span class="s1">intent</span><span class="s2">)</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>
